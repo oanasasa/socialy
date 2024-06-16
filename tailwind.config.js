@@ -24,6 +24,7 @@ module.exports = {
         "primary-600": "#15795B",
         "secondary-500": "#FFB620",
         "off-white": "#D0DFFF",
+        "input-chat": "#3A3B3C",
         red: "#FF5A5A",
         "dark-1": "#000000",
         "dark-2": "#09090A",

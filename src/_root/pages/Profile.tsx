@@ -33,6 +33,10 @@ const Profile = () => {
 
   const { data: currentUser } = useGetUserById(id || "");
 
+  function openChat() {
+    return 1;
+  }
+
   if (!currentUser)
     return (
       <div className="flex-center w-full h-full">
@@ -66,7 +70,7 @@ const Profile = () => {
             </div>
 
             <p className="small-medium md:base-medium text-center xl:text-left mt-7 max-w-screen-sm">
-              {currentUser.bio}
+              Bio: {currentUser.bio}
             </p>
           </div>
 
@@ -90,8 +94,12 @@ const Profile = () => {
               </Link>
             </div>
             <div className={`${user.id === id && "hidden"}`}>
-              <Button type="button" className="shad-button_primary px-8">
-                Follow
+              <Button
+                onClick={openChat()}
+                type="button"
+                className="shad-button_primary px-8"
+              >
+                Message
               </Button>
             </div>
           </div>

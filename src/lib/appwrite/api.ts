@@ -2,6 +2,7 @@ import { ID, Query } from "appwrite";
 
 import { appwriteConfig, account, databases, storage, avatars } from "./config";
 import { INewPost, INewUser, IUpdatePost, IUpdateUser } from "@/types";
+import { useState } from "react";
 
 export async function createUserAccount(user: INewUser) {
   try {
@@ -455,6 +456,36 @@ export async function updateUser(user: IUpdateUser) {
     }
 
     return updatedUser;
+  } catch (error) {
+    console.log(error);
+  }
+}
+
+export async function getMessages() {
+  try {
+    const messages = await databases.listDocuments(
+      appwriteConfig.databaseId,
+      appwriteConfig.messagesCollectionId
+    );
+    return messages.documents;
+  } catch (error) {
+    console.log(error);
+  }
+}
+
+export async function createMessage(messageBody: String) {
+  try {
+    let payload = {
+      body: messageBody,
+    };
+    const newMessage = await databases.createDocument(
+      appwriteConfig.databaseId,
+      appwriteConfig.messagesCollectionId,
+      ID.unique(),
+      payload
+    );
+
+    return newMessage;
   } catch (error) {
     console.log(error);
   }

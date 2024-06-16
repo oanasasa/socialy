@@ -129,6 +129,39 @@
     @apply flex flex-col items-center w-full gap-2 rounded-[24px] border border-dark-4 p-5 md:p-8;
   }
 
+  /* Chat */
+  /* scrollbar width */
+  .chat_box::-webkit-scrollbar {
+    @apply w-2;
+  }
+  /* scrollbar Track */
+  .chat_box::-webkit-scrollbar-track {
+    @apply rounded-md bg-input-chat;
+  }
+  /* scrollbar Handle */
+  .chat_box::-webkit-scrollbar-thumb {
+    @apply bg-dark-4 rounded-sm;
+  }
+  .chat_container {
+    @apply bg-dark-2 rounded-3xl border border-dark-4 p-5 lg:p-7;
+  }
+  .chat_box {
+    @apply min-w-[200px] max-h-[220px] overflow-y-scroll pr-2;
+  }
+  .chat_box ul {
+    @apply min-h-[220px] flex flex-col items-end justify-end w-full h-full;
+  }
+  .chat_input {
+    @apply w-full text-white px-3 py-1 rounded-3xl border-none bg-input-chat;
+  }
+  .chat_message {
+    @apply w-fit bg-light-3 py-2 px-3 mt-1 rounded-2xl;
+  }
+  .chat_bubble {
+    @apply w-fit border border-white aspect-square py-2 px-3 mt-1 rounded-full flex align-middle;
+  }
+  /* End Chat */
+
   /* Explore */
   .explore-container {
     @apply flex flex-col flex-1 items-center overflow-scroll py-10 px-5 md:p-14 custom-scrollbar;
