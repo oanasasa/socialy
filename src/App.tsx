@@ -17,13 +17,12 @@ import SignupForm from "./_auth/forms/SignupForm";
 import AuthLayout from "./_auth/AuthLayout";
 import RootLayout from "./_root/RootLayout";
 import { Toaster } from "@/components/ui/toaster";
-import Chat from "./components/shared/ChatModel";
+import Messenger from "./_root/pages/Messenger";
 
 const App = () => {
   return (
     <div>
       <main className="flex h-screen">
-        <Chat />
         <Routes>
           <Route element={<AuthLayout />}>
             <Route path="/sign-in" element={<SigninForm />} />
@@ -40,6 +39,7 @@ const App = () => {
             <Route path="/posts/:id" element={<PostDetails />} />
             <Route path="/profile/:id/*" element={<Profile />} />
             <Route path="/update-profile/:id" element={<UpdateProfile />} />
+            <Route path="/messages/:id/*" element={<Messenger />} />
           </Route>
         </Routes>
 

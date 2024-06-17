@@ -460,33 +460,3 @@ export async function updateUser(user: IUpdateUser) {
     console.log(error);
   }
 }
-
-export async function getMessages() {
-  try {
-    const messages = await databases.listDocuments(
-      appwriteConfig.databaseId,
-      appwriteConfig.messagesCollectionId
-    );
-    return messages.documents;
-  } catch (error) {
-    console.log(error);
-  }
-}
-
-export async function createMessage(messageBody: String) {
-  try {
-    let payload = {
-      body: messageBody,
-    };
-    const newMessage = await databases.createDocument(
-      appwriteConfig.databaseId,
-      appwriteConfig.messagesCollectionId,
-      ID.unique(),
-      payload
-    );
-
-    return newMessage;
-  } catch (error) {
-    console.log(error);
-  }
-}

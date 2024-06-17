@@ -23,8 +23,6 @@ import {
   getUserById,
   updateUser,
   getUsers,
-  getMessages,
-  createMessage,
 } from "@/lib/appwrite/api";
 import { INewPost, INewUser, IUpdatePost, IUpdateUser } from "@/types";
 import { QUERY_KEYS } from "./queryKeys";
@@ -231,17 +229,3 @@ export const useUpdateUser = () => {
     },
   });
 };
-
-export const useGetMessages = () => {
-  return useQuery({
-    queryKey: ["getMessages"],
-    queryFn: () => getMessages(),
-  });
-};
-
-// export const useCreateMessage = () => {
-//   return useQuery({
-//     queryKey: ["getMessages"],
-//     queryFn: () => createMessage(),
-//   });
-// };

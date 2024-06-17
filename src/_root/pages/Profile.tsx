@@ -11,8 +11,8 @@ import { LikedPosts } from "@/_root/pages";
 import { useUserContext } from "@/context/AuthContext";
 import { useGetUserById } from "@/lib/react-query/queriesAndMutations";
 import Loader from "@/components/shared/Loader";
-import { Button } from "@/components/ui/button";
 import GridPostList from "@/components/shared/GridPostList";
+import { Button } from "@/components/ui/button";
 
 interface StabBlockProps {
   value: string | number;
@@ -33,9 +33,9 @@ const Profile = () => {
 
   const { data: currentUser } = useGetUserById(id || "");
 
-  function openChat() {
-    return 1;
-  }
+  // function openChat() {
+  //   return 1;
+  // }
 
   if (!currentUser)
     return (
@@ -94,12 +94,8 @@ const Profile = () => {
               </Link>
             </div>
             <div className={`${user.id === id && "hidden"}`}>
-              <Button
-                onClick={openChat()}
-                type="button"
-                className="shad-button_primary px-8"
-              >
-                Message
+              <Button type="button" className="shad-button_primary px-8">
+                <Link to={`/messages/${id}`}>Message</Link>
               </Button>
             </div>
           </div>

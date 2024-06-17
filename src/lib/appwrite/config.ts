@@ -17,5 +17,6 @@ export const databases = new Databases(client);
 export const storage = new Storage(client);
 export const avatars = new Avatars(client);
 
-client.setProject(appwriteConfig.projectId);
-client.setEndpoint(appwriteConfig.url);
+client.setEndpoint(appwriteConfig.url).setProject(appwriteConfig.projectId);
+
+export default client;
