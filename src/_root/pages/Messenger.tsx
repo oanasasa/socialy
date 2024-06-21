@@ -1,7 +1,15 @@
 import { useEffect, useState } from "react";
-import { ID, Models, Query, RealtimeResponseEvent } from "appwrite";
+import {
+  ID,
+  Models,
+  Permission,
+  Query,
+  RealtimeResponseEvent,
+  Role,
+} from "appwrite";
 import client, { appwriteConfig, databases } from "@/lib/appwrite/config";
 import Loader from "@/components/shared/Loader";
+import { useUserContext } from "@/context/AuthContext";
 
 const Messenger = () => {
   const [messages, setMessages] = useState<Models.Document[]>([]);
@@ -9,11 +17,12 @@ const Messenger = () => {
   const chat_container = document.getElementById(
     "chatBox"
   ) as HTMLElement | null;
+  const { user } = useUserContext();
 
   useEffect(() => {
     getMessages();
 
-    client.subscribe(
+    const unsubscribe = client.subscribe(
       [
         `databases.${appwriteConfig.databaseId}.collections.${appwriteConfig.messagesCollectionId}.documents`,
       ],
@@ -23,7 +32,7 @@ const Messenger = () => {
             "databases.*.collections.*.documents.*.create"
           )
         ) {
-          console.log("A message was created");
+          // console.log("A message was created");
           setMessages((prevState) => [...prevState, response.payload]);
         }
 
@@ -32,13 +41,17 @@ const Messenger = () => {
             "databases.*.collections.*.documents.*.delete"
           )
         ) {
-          console.log("A message was deleted!!!");
+          // console.log("A message was deleted!!!");
           setMessages((prevState) =>
             prevState.filter((message) => message.$id !== response.payload.$id)
           );
         }
       }
     );
+
+    return () => {
+      unsubscribe();
+    };
   }, []);
 
   useEffect(() => {
@@ -67,16 +80,26 @@ const Messenger = () => {
 
     try {
       let payload = {
+        user_id: user?.id,
+        username: user?.name,
         body: messageBody,
       };
-      let response = await databases.createDocument(
-        appwriteConfig.databaseId,
-        appwriteConfig.messagesCollectionId,
-        ID.unique(),
-        payload
-      );
 
-      // setMessages((prevState) => [...messages, response]);
+      if (user.id) {
+        let permissions = [Permission.write(Role.user(user.id))];
+
+        console.log(permissions);
+
+        let response = await databases.createDocument(
+          appwriteConfig.databaseId,
+          appwriteConfig.messagesCollectionId,
+          ID.unique(),
+          payload,
+          permissions
+        );
+
+        console.log("RESPONSE:", response);
+      }
 
       setMessageBody("");
     } catch (error) {
@@ -116,6 +139,7 @@ const Messenger = () => {
 
     return formattedDate;
   }
+  // console.log(messages);
 
   return (
     <div className="w-full">
@@ -129,24 +153,44 @@ const Messenger = () => {
                 {messages?.map((message: Models.Document) => (
                   <li key={message.$id} className="chat_message">
                     <div className="flex items-center justify-between gap-3">
-                      <p className="chat_date">
-                        {formatNiceDate(message?.$createdAt)}
+                      <p>
+                        {message?.username ? (
+                          <span>{message?.username}</span>
+                        ) : (
+                          "Anonymous user"
+                        )}
+                        <span className="chat_date">
+                          {formatNiceDate(message.$createdAt)}
+                        </span>
                       </p>
-                      <button
-                        onClick={() => {
-                          deleteMessage(message.$id);
-                        }}
-                      >
-                        <img
-                          src="/assets/icons/delete.svg"
-                          alt="delete message"
-                          width={15}
-                          height={15}
-                        />
-                      </button>
-                    </div>
 
-                    <p>{message?.body}</p>
+                      {message.$permissions.includes(
+                        `delete(\"user:${user.id}\")`
+                      ) && (
+                        <button
+                          onClick={() => {
+                            deleteMessage(message.$id);
+                          }}
+                        >
+                          <img
+                            src="/assets/icons/delete.svg"
+                            alt="delete message"
+                            width={15}
+                            height={15}
+                          />
+                        </button>
+                      )}
+                    </div>
+                    <div
+                      className={
+                        "message_body" +
+                        (message.user_id === user.id
+                          ? "message_body_owner"
+                          : "")
+                      }
+                    >
+                      <span>{message?.body}</span>
+                    </div>
                   </li>
                 ))}
               </ul>

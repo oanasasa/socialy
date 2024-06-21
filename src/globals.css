@@ -165,6 +165,10 @@
   }
   /* End Chat */
 
+  /* Header Banner */
+  .header_banner {
+    @apply bg-primary-500 w-full absolute left-0 py-2 px-10 transition-all ease-out duration-1000;
+  }
   /* Explore */
   .explore-container {
     @apply flex flex-col flex-1 items-center overflow-scroll py-10 px-5 md:p-14 custom-scrollbar;
