@@ -33,10 +33,6 @@ const Profile = () => {
 
   const { data: currentUser } = useGetUserById(id || "");
 
-  // function openChat() {
-  //   return 1;
-  // }
-
   if (!currentUser)
     return (
       <div className="flex-center w-full h-full">

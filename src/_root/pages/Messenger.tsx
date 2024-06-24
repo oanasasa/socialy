@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   ID,
   Models,
@@ -7,9 +7,13 @@ import {
   RealtimeResponseEvent,
   Role,
 } from "appwrite";
-import client, { appwriteConfig, databases } from "@/lib/appwrite/config";
+import { client, appwriteConfig, databases } from "@/lib/appwrite/config";
 import Loader from "@/components/shared/Loader";
-import { useUserContext } from "@/context/AuthContext";
+import {
+  useGetCurrentUser,
+  useGetUserById,
+} from "@/lib/react-query/queriesAndMutations";
+import { useParams } from "react-router-dom";
 
 const Messenger = () => {
   const [messages, setMessages] = useState<Models.Document[]>([]);
@@ -17,11 +21,15 @@ const Messenger = () => {
   const chat_container = document.getElementById(
     "chatBox"
   ) as HTMLElement | null;
-  const { user } = useUserContext();
+  const { id } = useParams();
+  const { data: currentUser } = useGetCurrentUser();
+  // const { user } = useUserContext();
+  const { data: paramUser } = useGetUserById(id || "");
 
   useEffect(() => {
-    getMessages();
-
+    if (currentUser?.accountId && paramUser?.$id) {
+      getMessages();
+    }
     const unsubscribe = client.subscribe(
       [
         `databases.${appwriteConfig.databaseId}.collections.${appwriteConfig.messagesCollectionId}.documents`,
@@ -32,7 +40,6 @@ const Messenger = () => {
             "databases.*.collections.*.documents.*.create"
           )
         ) {
-          // console.log("A message was created");
           setMessages((prevState) => [...prevState, response.payload]);
         }
 
@@ -41,7 +48,6 @@ const Messenger = () => {
             "databases.*.collections.*.documents.*.delete"
           )
         ) {
-          // console.log("A message was deleted!!!");
           setMessages((prevState) =>
             prevState.filter((message) => message.$id !== response.payload.$id)
           );
@@ -52,7 +58,7 @@ const Messenger = () => {
     return () => {
       unsubscribe();
     };
-  }, []);
+  }, [currentUser]);
 
   useEffect(() => {
     if (chat_container) {
@@ -66,7 +72,19 @@ const Messenger = () => {
       const response = await databases.listDocuments(
         appwriteConfig.databaseId,
         appwriteConfig.messagesCollectionId,
-        [Query.orderAsc("$createdAt"), Query.limit(20)]
+        [
+          Query.orderAsc("$createdAt"),
+          Query.or([
+            Query.and([
+              Query.equal("sender_id", currentUser?.accountId),
+              Query.equal("receiver_id", paramUser?.accountId),
+            ]),
+            Query.and([
+              Query.equal("sender_id", paramUser?.accountId),
+              Query.equal("receiver_id", currentUser?.accountId),
+            ]),
+          ]),
+        ]
       );
       setMessages(response.documents);
     } catch (error) {
@@ -80,15 +98,14 @@ const Messenger = () => {
 
     try {
       let payload = {
-        user_id: user?.id,
-        username: user?.name,
+        sender_id: currentUser?.accountId,
+        receiver_id: paramUser?.accountId,
+        username: currentUser?.name,
         body: messageBody,
       };
 
-      if (user.id) {
-        let permissions = [Permission.write(Role.user(user.id))];
-
-        console.log(permissions);
+      if (currentUser?.accountId) {
+        let permissions = [Permission.write(Role.user(currentUser.accountId))];
 
         let response = await databases.createDocument(
           appwriteConfig.databaseId,
@@ -97,13 +114,18 @@ const Messenger = () => {
           payload,
           permissions
         );
-
-        console.log("RESPONSE:", response);
       }
 
       setMessageBody("");
     } catch (error) {
       console.log(error);
+    }
+  };
+
+  const handleKeyDown = (e: any) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      handleSubmit(e);
     }
   };
 
@@ -113,17 +135,10 @@ const Messenger = () => {
       appwriteConfig.messagesCollectionId,
       message_id
     );
-
-    // setMessages((prevState) =>
-    //   messages.filter((message) => message.$id !== message_id)
-    // );
   };
-
   function formatNiceDate(dateString: string): string {
-    // Create a new Date object from the input date string
     const date = new Date(dateString);
 
-    // Define options for formatting the date without seconds
     const options: Intl.DateTimeFormatOptions = {
       weekday: "long",
       year: "numeric",
@@ -134,13 +149,10 @@ const Messenger = () => {
       hour12: false,
     };
 
-    // Format the date and time
     const formattedDate = date.toLocaleString("ro-RO", options);
 
     return formattedDate;
   }
-  // console.log(messages);
-
   return (
     <div className="w-full">
       <div className="chat_container">
@@ -149,9 +161,16 @@ const Messenger = () => {
             {!messages ? (
               <Loader />
             ) : (
-              <ul className="flex flex-col gap-9 flex-1 w-full">
+              <ul>
                 {messages?.map((message: Models.Document) => (
-                  <li key={message.$id} className="chat_message">
+                  <li
+                    key={message.$id}
+                    className={`chat_message ${
+                      message.sender_id === currentUser?.accountId
+                        ? "owner"
+                        : ""
+                    }`}
+                  >
                     <div className="flex items-center justify-between gap-3">
                       <p>
                         {message?.username ? (
@@ -160,12 +179,12 @@ const Messenger = () => {
                           "Anonymous user"
                         )}
                         <span className="chat_date">
-                          {formatNiceDate(message.$createdAt)}
+                          ({formatNiceDate(message.$createdAt)})
                         </span>
                       </p>
 
                       {message.$permissions.includes(
-                        `delete(\"user:${user.id}\")`
+                        `delete(\"user:${currentUser?.accountId}\")`
                       ) && (
                         <button
                           onClick={() => {
@@ -181,14 +200,7 @@ const Messenger = () => {
                         </button>
                       )}
                     </div>
-                    <div
-                      className={
-                        "message_body" +
-                        (message.user_id === user.id
-                          ? "message_body_owner"
-                          : "")
-                      }
-                    >
+                    <div className="message_body">
                       <span>{message?.body}</span>
                     </div>
                   </li>
@@ -204,6 +216,7 @@ const Messenger = () => {
                 maxLength={1000}
                 placeholder="Say something..."
                 onChange={(e) => setMessageBody(e.target.value)}
+                onKeyDown={handleKeyDown}
                 value={messageBody}
                 className="chat_input"
               ></textarea>

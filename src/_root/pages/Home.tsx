@@ -1,4 +1,3 @@
-import Header from "@/components/shared/Header";
 import PostCard from "@/components/shared/PostCard";
 import { useGetRecentPosts } from "@/lib/react-query/queriesAndMutations";
 import { Models } from "appwrite";
@@ -9,9 +8,6 @@ const Home = () => {
 
   return (
     <div className="flex flex-1">
-      <div>
-        <Header />
-      </div>
       <div className="home-container">
         <div className="home-posts">
           <h2 className="h3-bold md:h2-bold text-left w-full">Home Posts</h2>

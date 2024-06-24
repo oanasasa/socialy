@@ -149,19 +149,23 @@
     @apply min-h-[750px] w-full overflow-y-scroll pr-2;
   }
   .chat_box ul {
-    @apply flex flex-col items-end justify-end w-full;
+    @apply flex flex-col items-start justify-end w-full;
   }
   .chat_input {
     @apply w-full text-white px-3 py-1 rounded-3xl border-none bg-input-chat;
   }
   .chat_message {
-    @apply w-fit bg-light-3 py-2 px-3 mt-1 rounded-2xl;
+    @apply py-2 px-3 mt-1 rounded-2xl w-fit border border-light-3;
   }
+  .chat_message.owner {
+    @apply self-end bg-light-3 border-light-3;
+  }
+
   .chat_bubble {
     @apply w-fit border border-white aspect-square py-2 px-3 mt-1 rounded-full flex align-middle;
   }
   .chat_date {
-    @apply italic lg:small-regular mb-2 text-light-2 opacity-70;
+    @apply italic lg:small-regular mb-2 text-light-2 opacity-70 ml-2;
   }
   /* End Chat */
 
