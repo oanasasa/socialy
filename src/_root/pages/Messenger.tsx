@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import {
   ID,
   Models,
@@ -114,6 +114,8 @@ const Messenger = () => {
           payload,
           permissions
         );
+
+        console.log("Response:", response);
       }
 
       setMessageBody("");

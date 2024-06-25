@@ -2,7 +2,6 @@ import { ID, ImageGravity, Query } from "appwrite";
 
 import { appwriteConfig, account, databases, storage, avatars } from "./config";
 import { INewPost, INewUser, IUpdatePost, IUpdateUser } from "@/types";
-import { useState } from "react";
 
 export async function createUserAccount(user: INewUser) {
   try {
