@@ -14,6 +14,9 @@ import {
   useGetUserById,
 } from "@/lib/react-query/queriesAndMutations";
 import { useParams } from "react-router-dom";
+import { useMessageContext } from "@/context/MessageContext";
+
+//2. pus notificare cand primesti mesaj pe user-ul care a scris
 
 const Messenger = () => {
   const [messages, setMessages] = useState<Models.Document[]>([]);
@@ -23,8 +26,8 @@ const Messenger = () => {
   ) as HTMLElement | null;
   const { id } = useParams();
   const { data: currentUser } = useGetCurrentUser();
-  // const { user } = useUserContext();
   const { data: paramUser } = useGetUserById(id || "");
+  const { addMessage } = useMessageContext();
 
   useEffect(() => {
     if (currentUser?.accountId && paramUser?.$id) {
@@ -41,6 +44,14 @@ const Messenger = () => {
           )
         ) {
           setMessages((prevState) => [...prevState, response.payload]);
+
+          const message = {
+            id: ID.unique(),
+            userId: response.payload.sender_id,
+            content: response.payload.body,
+            receivedAt: new Date(),
+          };
+          addMessage(message);
         }
 
         if (
@@ -126,7 +137,6 @@ const Messenger = () => {
 
   const handleKeyDown = (e: any) => {
     if (e.key === "Enter" && !e.shiftKey) {
-      e.preventDefault();
       handleSubmit(e);
     }
   };

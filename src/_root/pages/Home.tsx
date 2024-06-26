@@ -3,6 +3,7 @@ import { useGetRecentPosts } from "@/lib/react-query/queriesAndMutations";
 import { Models } from "appwrite";
 import { Loader } from "lucide-react";
 
+//1. adaugat o librarie de minify care sa faca pozele mici (sa se incarce usor)
 const Home = () => {
   const { data: posts, isPending: isPostLoading } = useGetRecentPosts();
 

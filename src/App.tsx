@@ -18,11 +18,13 @@ import AuthLayout from "./_auth/AuthLayout";
 import RootLayout from "./_root/RootLayout";
 import { Toaster } from "@/components/ui/toaster";
 import Messenger from "./_root/pages/Messenger";
+import MessageNotification from "./components/shared/MessageNotification";
 
 const App = () => {
   return (
     <div>
       <main className="flex h-screen">
+        <MessageNotification />
         <Routes>
           <Route element={<AuthLayout />}>
             <Route path="/sign-in" element={<SigninForm />} />
